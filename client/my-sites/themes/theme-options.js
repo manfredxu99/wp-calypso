@@ -44,10 +44,10 @@ const purchase = config.isEnabled( 'upgrades/checkout' )
 		} ),
 		getUrl: getThemePurchaseUrl,
 		hideForSite: ( state, siteId ) => hasFeature( state, siteId, FEATURE_UNLIMITED_PREMIUM_THEMES ),
-		hideForTheme: ( state, theme, siteId ) => (
-			! isThemePremium( state, theme.id ) ||
-			isThemeActive( state, theme.id, siteId ) ||
-			isPremiumThemeAvailable( state, theme.id, siteId )
+		hideForTheme: ( state, themeId, siteId ) => (
+			! isThemePremium( state, themeId ) ||
+			isThemeActive( state, themeId, siteId ) ||
+			isPremiumThemeAvailable( state, themeId, siteId )
 		)
 	}
 	: {};
@@ -57,9 +57,9 @@ const activate = {
 	extendedLabel: i18n.translate( 'Activate this design' ),
 	header: i18n.translate( 'Activate on:', { comment: 'label for selecting a site on which to activate a theme' } ),
 	action: activateAction,
-	hideForTheme: ( state, theme, siteId ) => (
-		isThemeActive( state, theme.id, siteId ) ||
-		( isThemePremium( state, theme.id ) && ! isPremiumThemeAvailable( state, theme.id, siteId ) )
+	hideForTheme: ( state, themeId, siteId ) => (
+		isThemeActive( state, themeId, siteId ) ||
+		( isThemePremium( state, themeId ) && ! isPremiumThemeAvailable( state, themeId, siteId ) )
 	)
 };
 
@@ -77,7 +77,7 @@ const customize = {
 	icon: 'customize',
 	getUrl: getThemeCustomizeUrl,
 	hideForSite: ( state, siteId ) => ! canCurrentUser( state, siteId, 'edit_theme_options' ),
-	hideForTheme: ( state, theme, siteId ) => ! isThemeActive( state, theme.id, siteId )
+	hideForTheme: ( state, themeId, siteId ) => ! isThemeActive( state, themeId, siteId )
 };
 
 const tryandcustomize = {
@@ -88,7 +88,7 @@ const tryandcustomize = {
 	} ),
 	action: tryAndCustomizeAction,
 	hideForSite: ( state, siteId ) => ! canCurrentUser( state, siteId, 'edit_theme_options' ),
-	hideForTheme: ( state, theme, siteId ) => isThemeActive( state, theme.id, siteId )
+	hideForTheme: ( state, themeId, siteId ) => isThemeActive( state, themeId, siteId )
 };
 
 const preview = {
@@ -124,7 +124,7 @@ const support = {
 	label: i18n.translate( 'Setup' ),
 	icon: 'help',
 	getUrl: getThemeSupportUrl,
-	hideForTheme: ( state, theme ) => ! isThemePremium( state, theme.id )
+	hideForTheme: ( state, themeId ) => ! isThemePremium( state, themeId )
 };
 
 const help = {
@@ -188,9 +188,9 @@ export const connectOptions = connect(
 		let mapAction;
 
 		if ( siteId ) {
-			mapAction = action => ( t ) => action( t.id, siteId, source );
+			mapAction = action => ( t ) => action( t, siteId, source );
 		} else { // Bind only source.
-			mapAction = action => ( t, s ) => action( t.id, s, source );
+			mapAction = action => ( t, s ) => action( t, s, source );
 		}
 
 		return bindActionCreators(
