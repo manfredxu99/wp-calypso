@@ -10,6 +10,7 @@ import { localize } from 'i18n-calypso';
  */
 import { cartItems } from 'lib/cart-values';
 import { getFixedDomainSearch, checkDomainAvailability } from 'lib/domains';
+import { domainAvailability } from 'lib/domains/constants';
 import { getAvailabilityNotice } from 'lib/domains/registration/availability-messages';
 import DomainRegistrationSuggestion from 'components/domains/domain-registration-suggestion';
 import DomainProductPrice from 'components/domains/domain-product-price';
@@ -59,8 +60,7 @@ const MapDomainStep = React.createClass( {
 
 	render: function() {
 		const suggestion = { cost: this.props.products.domain_map.cost_display, product_slug: this.props.products.domain_map.product_slug },
-			price = this.props.products.domain_map ? this.props.products.domain_map.cost_display : null,
-			translate = this.props.translate;
+			{ translate } = this.props;
 
 		return (
 			<div className="map-domain-step">
@@ -80,16 +80,17 @@ const MapDomainStep = React.createClass( {
 						rule={ cartItems.getDomainPriceRule(
 							this.props.domainsWithPlansOnly,
 							this.props.selectedSite,
-							this.props.cart, suggestion
+							this.props.cart,
+							suggestion
 						) }
-						price={ price } />
+						price={ suggestion.cost } />
 
 					<div className="map-domain-step__add-domain" role="group">
 						<input
 							className="map-domain-step__external-domain"
 							type="text"
 							value={ this.state.searchQuery }
-							placeholder={ translate( 'Enter a domain', { textOnly: true } ) }
+							placeholder={ translate( 'Enter a domain' ) }
 							onBlur={ this.save }
 							onChange={ this.setSearchQuery }
 							onClick={ this.recordInputFocus }
@@ -109,7 +110,7 @@ const MapDomainStep = React.createClass( {
 	},
 
 	domainRegistrationUpsell: function() {
-		const suggestion = this.state.suggestion;
+		const { suggestion } = this.state;
 		if ( ! suggestion ) {
 			return;
 		}
@@ -158,25 +159,28 @@ const MapDomainStep = React.createClass( {
 	},
 
 	handleFormSubmit: function( event ) {
-		const domain = getFixedDomainSearch( this.state.searchQuery );
-
 		event.preventDefault();
+
+		const domain = getFixedDomainSearch( this.state.searchQuery );
 		this.recordEvent( 'formSubmit', this.state.searchQuery );
 		this.setState( { suggestion: null, notice: null } );
 
-		checkDomainAvailability( domain, ( error, result ) => {
-			if ( error ) {
-				if ( error.code === 'not_available_but_mappable' ) {
+		checkDomainAvailability( domain, ( result ) => {
+			switch ( result.status ) {
+				case domainAvailability.MAPPABLE:
+				case domainAvailability.UNKNOWN:
 					this.props.onMapDomain( domain );
 					return;
-				}
-				const { message, severity } = getAvailabilityNotice( domain, error );
-				this.setState( { notice: message, noticeSeverity: severity } );
-				return;
-			}
 
-			result.domain_name = domain;
-			this.setState( { suggestion: result } );
+				case domainAvailability.AVAILABLE:
+					this.setState( { suggestion: result } );
+					return;
+
+				default:
+					const { message, severity } = getAvailabilityNotice( domain, result.status );
+					this.setState( { notice: message, noticeSeverity: severity } );
+					return;
+			}
 		} );
 	},
 } );
