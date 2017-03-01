@@ -20,6 +20,7 @@ import { addTracking, trackClick } from './helpers';
 import DocumentHead from 'components/data/document-head';
 import { getFilter, getSortedFilterTerms, stripFilters } from './theme-filters.js';
 import buildUrl from 'lib/mixins/url-search/build-url';
+import { getCurrentUserId } from 'state/current-user/selectors';
 import { getSiteSlug } from 'state/sites/selectors';
 import ThemePreview from './theme-preview';
 import config from 'config';
@@ -141,10 +142,10 @@ const ThemeShowcase = React.createClass( {
 						tier={ tier }
 						select={ this.onTierSelect } />
 				</StickyPanel>
-				{ config.isEnabled( 'manage/themes/upload' ) && siteSlug && ! isMultisite &&
+				{ config.isEnabled( 'manage/themes/upload' ) && ! isMultisite && this.props.isLoggedIn &&
 					<Button className="themes__upload-button" compact icon
 						onClick={ this.onUploadClick }
-						href={ `/design/upload/${ this.props.siteSlug }` }
+						href={ siteSlug ? `/design/upload/${ siteSlug }` : '/design/upload' }
 					>
 						<Gridicon icon="cloud-upload" />
 						{ translate( 'Upload Theme' ) }
@@ -192,6 +193,7 @@ const ThemeShowcase = React.createClass( {
 
 export default connect(
 	( state, { siteId } ) => ( {
+		isLoggedIn: !! getCurrentUserId( state ),
 		siteSlug: getSiteSlug( state, siteId ),
 	} )
 )( localize( ThemeShowcase ) );
