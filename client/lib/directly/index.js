@@ -15,13 +15,28 @@ import config from 'config';
  */
 import { loadScript } from 'lib/load-script';
 
-const DEFAULT_RTM_WIDGET_OPTIONS = {
-	id: config( 'directly_rtm_widget_id' ),
-	displayAskQuestion: false
-};
 const DIRECTLY_RTM_SCRIPT_URL = 'https://widgets.wp.com/directly/embed.js';
 const DIRECTLY_ASSETS_BASE_URL = 'https://www.directly.com';
 let directlyPromise;
+
+/**
+ * Gets the default set of options to configure the Directly RTM widget.
+ * It's important to keep this config in a getter function, rather than a constant
+ * on the module scope, to prevent import-time errors errors that could crash Calypso.
+ *
+ * @see https://cloudup.com/cySVQ9R_O6S for all configuration options
+ *
+ * @returns {Object} The default configuration options
+ */
+function getDefaultOptions() {
+	const ids = config( 'directly_rtm_widget_ids' );
+	const env = config( 'directly_rtm_widget_environment' );
+
+	return {
+		id: ids[ env ],
+		displayAskQuestion: false
+	};
+}
 
 /**
  * Set up global variables and configuration for the RTM widget
@@ -36,7 +51,7 @@ function configureGlobals() {
 	};
 	// Since we can only configure once per pageload, this library only provides a
 	// single global configuration.
-	window.DirectlyRTM( 'config', DEFAULT_RTM_WIDGET_OPTIONS );
+	window.DirectlyRTM( 'config', getDefaultOptions() );
 }
 
 /**
