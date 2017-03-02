@@ -9,6 +9,7 @@ import { createStore, applyMiddleware, combineReducers, compose } from 'redux';
  */
 import sitesSync from './sites/enhancer';
 import noticesMiddleware from './notices/middleware';
+import extensions from '../extensions';
 import application from './application/reducer';
 import accountRecovery from './account-recovery/reducer';
 import automatedTransfer from './automated-transfer/reducer';
@@ -62,7 +63,7 @@ import wordads from './wordads/reducer';
 /**
  * Module variables
  */
-export const reducer = combineReducers( {
+const reducers = {
 	application,
 	accountRecovery,
 	automatedTransfer,
@@ -111,7 +112,9 @@ export const reducer = combineReducers( {
 	ui,
 	users,
 	wordads,
-} );
+};
+
+export const reducer = combineReducers( { ...extensions.reducers(), ...reducers } );
 
 export function createReduxStore( initialState = {} ) {
 	const isBrowser = typeof window === 'object';
