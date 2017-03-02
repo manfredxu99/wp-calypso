@@ -96,10 +96,7 @@ const tryandcustomize = {
 		comment: 'label in the dialog for opening the Customizer with the theme in preview'
 	} ),
 	action: tryAndCustomizeAction,
-	hideForSite: ( state, siteId ) => (
-		! canCurrentUser( state, siteId, 'edit_theme_options' ) ||
-		( isJetpackSite( state, siteId ) && isJetpackSiteMultiSite( state, siteId ) )
-	),
+	hideForSite: ( state, siteId ) => ( isJetpackSite( state, siteId ) && isJetpackSiteMultiSite( state, siteId ) ),
 	hideForTheme: ( state, theme, siteId ) => {
 		return (
 		isThemeActive( state, theme.id, siteId ) || (
