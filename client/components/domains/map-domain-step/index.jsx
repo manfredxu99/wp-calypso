@@ -165,8 +165,9 @@ const MapDomainStep = React.createClass( {
 		this.recordEvent( 'formSubmit', this.state.searchQuery );
 		this.setState( { suggestion: null, notice: null } );
 
-		checkDomainAvailability( domain, ( result ) => {
-			switch ( result.status ) {
+		checkDomainAvailability( domain, ( error, result ) => {
+			const status = result && result.status ? result.status : error;
+			switch ( status ) {
 				case domainAvailability.MAPPABLE:
 				case domainAvailability.UNKNOWN:
 					this.props.onMapDomain( domain );
@@ -177,7 +178,7 @@ const MapDomainStep = React.createClass( {
 					return;
 
 				default:
-					const { message, severity } = getAvailabilityNotice( domain, result.status );
+					const { message, severity } = getAvailabilityNotice( domain, status );
 					this.setState( { notice: message, noticeSeverity: severity } );
 					return;
 			}

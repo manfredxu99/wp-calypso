@@ -316,9 +316,9 @@ const RegisterDomainStep = React.createClass( {
 						return callback();
 					}
 
-					checkDomainAvailability( domain, ( result ) => {
+					checkDomainAvailability( domain, ( error, result ) => {
 						const timeDiff = Date.now() - timestamp,
-							{ status } = result,
+							status = result && result.status ? result.status : error,
 							{ AVAILABLE, UNKNOWN } = domainAvailability,
 							isDomainAvailable = includes( [ AVAILABLE, UNKNOWN ], status );
 

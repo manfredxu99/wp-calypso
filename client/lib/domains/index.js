@@ -35,17 +35,17 @@ function canAddGoogleApps( domainName ) {
 
 function checkDomainAvailability( domainName, onComplete ) {
 	if ( ! domainName ) {
-		onComplete( { status: domainAvailability.EMPTY_QUERY } );
+		onComplete( null, { status: domainAvailability.EMPTY_QUERY } );
 		return;
 	}
 
 	wpcom.undocumented().isDomainAvailable( domainName, function( serverError, result ) {
 		if ( serverError ) {
-			onComplete( { status: serverError.error } );
+			onComplete( serverError.error );
 			return;
 		}
 
-		onComplete( result );
+		onComplete( null, result );
 	} );
 }
 
