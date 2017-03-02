@@ -450,11 +450,8 @@ Undocumented.prototype._sendRequestWithLocale = function( originalParams, fn ) {
  * @api public
  */
 Undocumented.prototype.isDomainAvailable = function( domain, fn ) {
-	domain = encodeURIComponent( domain );
-
-	return this.wpcom.req.get( {
-		path: '/domains/' + domain + '/is-available',
-		apiVersion: '1.1'
+	return this.wpcom.req.get( `/domains/${ encodeURIComponent( domain ) }/is-available`, {
+		apiVersion: '1.2'
 	}, fn );
 };
 
